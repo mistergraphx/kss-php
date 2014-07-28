@@ -53,6 +53,8 @@ class Section
      */
     protected $experimental = null;
     
+    
+    
     /**
      * The compatibility informations
      *
@@ -129,6 +131,7 @@ class Section
                 && $commentSection != $this->getExperimentalComment()
                 && $commentSection != $this->getCompatibilityComment()
                 && $commentSection != $this->getModifiersComment()
+                && $commentSection != $this->getParametersComment()
             ) {
                 $descriptionSections[] = $commentSection;
             }
@@ -256,6 +259,45 @@ class Section
         }
 
         return $modifiers;
+    }
+    
+    /**
+     * Returns the $parameters used in the section
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        $lastIndent = null;
+        $parameters = array();
+
+        if ($parameterComment = $this->getParametersComment()) {
+            $parameterLines = explode("\n", $parameterComment);
+            foreach ($parameterLines as $line) {
+                if (empty($line)) {
+                    continue;
+                }
+
+                
+                $lineParts = explode(' - ', $line);
+
+                $name = trim(array_shift($lineParts));
+
+                $description = '';
+                
+                if (!empty($lineParts)) {
+                    $description = trim(implode(' - ', $lineParts));
+                }
+                
+                $parameter = new Modifier($name, $description);
+
+                
+                $parameters[] = $parameter;
+                
+            }
+        }
+
+        return $parameters;
     }
 
     /**
@@ -559,5 +601,25 @@ class Section
         }
 
         return $modifiersComment;
+    }
+    
+    /**
+     * Returns the part of the KSS Comment Block that contains the $parameters
+     *
+     * @return string
+     */
+    protected function getParametersComment()
+    {
+        $parametersComment = null;
+
+        foreach ($this->getCommentSections() as $commentSection) {
+            // Assume that the parameters section starts with $,%,@
+            if (preg_match('/^\s*(\$|@|%)/', $commentSection)) {
+                $parametersComment = $commentSection;
+                break;
+            }
+        }
+
+        return $parametersComment;
     }
 }

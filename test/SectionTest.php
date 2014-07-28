@@ -10,14 +10,14 @@ class SectionTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $commentText = <<<comment
+        $commentText = <<<'comment'
 # Form Button
 
 Your standard form button.
 
 And another line describing the button.
 
-Markup: <div class="\$modifierClass"></div>
+Markup: <div class="$modifierClass"></div>
 
 Compatibility:  IE6+, Firefox 2+, Safari 4+.
 
@@ -30,6 +30,12 @@ Experimental: An alternative signup button styling used in AB Test #195.
 .primary - Indicates button is the primary action.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
+
+$parameter {type} $myParam - ParameterDescription
+$parameter {type} $myParam - ParameterDescription
+$parameter {type} $myParam - ParameterDescription
+$parameter {type} $myParam - ParameterDescription
+$parameter {type} $myParam - ParameterDescription
 
 Styleguide 2.1.1.
 comment;
@@ -145,6 +151,12 @@ And another line describing the button.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+
 Styleguide 2.1.1.
 comment;
 
@@ -183,6 +195,12 @@ Safari 4+.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+
 Styleguide 2.1.1.
 comment;
 
@@ -212,6 +230,12 @@ And another line describing the button.
 .primary - Indicates button is the primary action.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
+
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
 
 Styleguide 2.1.1.
 comment;
@@ -251,6 +275,12 @@ July 13, 2007.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+
 Styleguide 2.1.1.
 comment;
 
@@ -280,6 +310,12 @@ And another line describing the button.
 .primary - Indicates button is the primary action.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
+
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
 
 Styleguide 2.1.1.
 comment;
@@ -319,6 +355,12 @@ AB Test #195.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+@parameter {type} \$myParam - ParameterDescription
+
 Styleguide 2.1.1.
 comment;
 
@@ -349,13 +391,24 @@ And another line describing the button.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+
 Styleguide 2.1.1.
 comment;
 
         $testSection = new Section($commentText);
         $this->assertEmpty($testSection->getExperimental());
     }
-
+    
+    /**
+     * @test
+     */
+    public function getParameters()
+    {
+        $this->assertCount(5, self::$section->getParameters());
+    }
+    
+    
+    
     /**
      * @test
      */
