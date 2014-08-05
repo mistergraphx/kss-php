@@ -1,6 +1,5 @@
 <div class="styleguide" id="r<?php echo $section->getReference(); ?>">
     <h3 class="styleguide__header">
-        <span class="styleguide__reference"><?php echo $section->getReference(); ?></span>
         <span class="styleguide__title"><?php echo $section->getTitle(); ?></span>
         <span class="styleguide__filename"><?php echo $section->getFilename(); ?></span>
     </h3>
@@ -28,6 +27,33 @@
             </ul>
         <?php } ?>
     </div>
+    
+     
+    <?php
+        if (count($section->getParameters()) > 0) {
+    ?>
+        <table class="styleguide__parameters">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($section->getParameters() as $parameter) { ?>
+            <tr>
+                <td class="styleguide__parameter-name">
+                <?php echo $parameter->getName(); ?></td>
+                <td class="styleguide__parameter-description">
+                <?php if ($parameter->getDescription()) { ?>
+                       <?php echo $parameter->getDescription(); ?>
+                <?php } ?>
+                </td>
+            </tr>
+            <?php } ?>
+            </tbody>
+        </table>            
+    <?php } ?>
 
     <div class="styleguide__elements">
         <div class="styleguide__element">

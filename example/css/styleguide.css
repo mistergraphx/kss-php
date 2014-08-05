@@ -40,6 +40,31 @@
 .styleguide__modifier-name {
     font-weight: bold;
 }
+table.styleguide__parameters {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+table.styleguide__parameters tr:nth-of-type(odd) {
+  background: #eee;
+}
+table.styleguide__parameters th {
+  background: white;
+  color: #333;
+  font-weight: bold;
+}
+table.styleguide__parameters td,
+table.styleguide__parameters th {
+  padding: 6px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+.styleguide__parameter-name {
+    width: 40%;
+}
+.styleguide__parameter-description {
+    font-weight: bold;
+}
 .styleguide__element {
     position: relative;
     padding: 20px;

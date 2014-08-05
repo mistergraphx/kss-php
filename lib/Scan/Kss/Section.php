@@ -52,9 +52,7 @@ class Section
      * @var string
      */
     protected $experimental = null;
-    
-    
-    
+
     /**
      * The compatibility informations
      *
@@ -68,6 +66,13 @@ class Section
      * @var string
      */
     protected $reference = null;
+
+    /**
+     * The section reference identifier dot delimited
+     *
+     * @var string
+     */
+    protected $referenceDotDelimited = null;
 
     /**
      * Creates a section with the KSS Comment Block and source file
@@ -107,6 +112,11 @@ class Section
         $titleComment = $this->getTitleComment();
         if (preg_match('/^\s*#+\s*(.+)/', $titleComment, $matches)) {
             $title = $matches[1];
+        } elseif (self::isReferenceNumeric($this->getReference())) {
+            return $this->getReference();
+        } else {
+            $reference = $this->getReferenceParts();
+            return end($reference);
         }
 
         return $title;
@@ -198,7 +208,7 @@ class Section
 
         return $this->experimental;
     }
-    
+
     /**
      * Returns the compatibility notice defined in the section
      *
@@ -214,7 +224,47 @@ class Section
 
         return $this->compatibility;
     }
+    /**
+     * Returns the $parameters used in the section
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        $lastIndent = null;
+        $parameters = array();
 
+        if ($parameterComment = $this->getParametersComment()) {
+            $parameterLines = explode("\n", $parameterComment);
+            foreach ($parameterLines as $line) {
+                if (empty($line)) {
+                    continue;
+                }
+
+                
+                $lineParts = explode(' - ', $line);
+
+                $name = trim(array_shift($lineParts));
+
+                $description = '';
+                
+                if (!empty($lineParts)) {
+                    $description = trim(implode(' - ', $lineParts));
+                }
+                
+                $parameter = new Parameter($name, $description);
+
+                
+                $parameters[] = $parameter;
+                
+            }
+        }
+
+        return $parameters;
+    }
+
+    
+    
     /**
      * Returns the modifiers used in the section
      *
@@ -260,45 +310,6 @@ class Section
 
         return $modifiers;
     }
-    
-    /**
-     * Returns the $parameters used in the section
-     *
-     * @return array
-     */
-    public function getParameters()
-    {
-        $lastIndent = null;
-        $parameters = array();
-
-        if ($parameterComment = $this->getParametersComment()) {
-            $parameterLines = explode("\n", $parameterComment);
-            foreach ($parameterLines as $line) {
-                if (empty($line)) {
-                    continue;
-                }
-
-                
-                $lineParts = explode(' - ', $line);
-
-                $name = trim(array_shift($lineParts));
-
-                $description = '';
-                
-                if (!empty($lineParts)) {
-                    $description = trim(implode(' - ', $lineParts));
-                }
-                
-                $parameter = new Modifier($name, $description);
-
-                
-                $parameters[] = $parameter;
-                
-            }
-        }
-
-        return $parameters;
-    }
 
     /**
      * Returns the reference number for the section
@@ -325,14 +336,59 @@ class Section
             $referenceComment = $this->getReferenceComment();
             $referenceComment = preg_replace('/\.$/', '', $referenceComment);
 
-            if (preg_match('/Styleguide (\w\S*)/', $referenceComment, $matches)) {
-                $this->reference = $matches[1];
+            if (preg_match('/^\s*Styleguide\s+(.*)/i', $referenceComment, $matches)) {
+                $this->reference = trim($matches[1]);
             }
         }
 
         return ($trimmed && $this->reference !== null)
             ? self::trimReference($this->reference)
             : $this->reference;
+    }
+
+    /**
+     * Returns the reference dot delimited
+     *
+     * @return string
+     */
+    protected function getReferenceDotDelimited()
+    {
+        if (empty($this->referenceDotDelimited)) {
+            $this->referenceDotDelimited = self::normalizeReference($this->getReference());
+        }
+        return $this->referenceDotDelimited;
+    }
+
+    /**
+     * Checks if the Section has a reference
+     *
+     * @return boolean
+     */
+    public function hasReference()
+    {
+        return $this->getReference() !== null;
+    }
+
+    /**
+     * Checks to see if a reference is numeric
+     *
+     * @param string
+     *
+     * @return boolean
+     */
+    public static function isReferenceNumeric($reference)
+    {
+        return !preg_match('/[^\d\.]/', $reference);
+    }
+
+    /**
+     * Returns the references as an array of its parts
+     *
+     * @return array
+     */
+    public function getReferenceParts()
+    {
+        return explode('.', $this->getReferenceDotDelimited());
     }
 
     /**
@@ -344,13 +400,25 @@ class Section
      */
     public static function trimReference($reference)
     {
-        if (substr($reference, -1) == '.') {
-            $reference = substr($reference, 0, -1);
+        if (substr($reference, -1) == '.' || substr($reference, -1) == '-') {
+            $reference = trim(substr($reference, 0, -1));
         }
         while (preg_match('/(\.0+)$/', $reference, $matches)) {
             $reference = substr($reference, 0, strlen($matches[1]) * -1);
         }
         return $reference;
+    }
+
+    /**
+     * Normalizes references so all delimiters are standardized
+     *
+     * @param string $reference
+     *
+     * @return string
+     */
+    public static function normalizeReference($reference)
+    {
+        return preg_replace('/\s*-\s*/', '.', $reference);
     }
 
     /**
@@ -363,7 +431,8 @@ class Section
     public function belongsToReference($reference)
     {
         $reference = self::trimReference($reference);
-        return strpos($this->getReference() . '.', $reference . '.') === 0;
+        $reference = self::normalizeReference($reference);
+        return stripos($this->getReferenceDotDelimited() . '.', $reference . '.') === 0;
     }
 
     /**
@@ -373,7 +442,7 @@ class Section
      */
     public function getDepth()
     {
-        return self::calcDepth($this->getReference());
+        return self::calcDepth($this->getReferenceDotDelimited());
     }
 
     /**
@@ -386,6 +455,7 @@ class Section
     public static function calcDepth($reference)
     {
         $reference = self::trimReference($reference);
+        $reference = self::normalizeReference($reference);
         return substr_count($reference, '.');
     }
 
@@ -396,16 +466,20 @@ class Section
      */
     public function getDepthScore()
     {
-        return self::calcDepthScore($this->getReference());
+        return self::calcDepthScore($this->getReferenceDotDelimited());
     }
+
     /**
      * Calculates and returns the depth score for the section. Useful for sorting
      * sections correctly by their section reference numbers
      *
-     * @return int
+     * @return int|null
      */
     public static function calcDepthScore($reference)
     {
+        if (!self::isReferenceNumeric($reference)) {
+            return null;
+        }
         $reference = self::trimReference($reference);
         $sectionParts = explode('.', $reference);
         $score = 0;
@@ -416,7 +490,7 @@ class Section
     }
 
     /**
-     * Function to help sort sections by depth and then depth score
+     * Function to help sort sections by depth and then depth score or alphabetically
      *
      * @param Section $a
      * @param Section $b
@@ -426,7 +500,7 @@ class Section
     public static function depthSort(Section $a, Section $b)
     {
         if ($a->getDepth() == $b->getDepth()) {
-            return self::depthScoreSort($a, $b);
+            return self::alphaDepthScoreSort($a, $b);
         }
         return $a->getDepth() > $b->getDepth();
     }
@@ -442,6 +516,34 @@ class Section
     public static function depthScoreSort(Section $a, Section $b)
     {
         return $a->getDepthScore() > $b->getDepthScore();
+    }
+
+    /**
+     * Function to help sort sections either by their depth score if numeric or
+     * alphabetically if non-numeric.
+     *
+     * @param Section $a
+     * @param Section $b
+     *
+     * @return int
+     */
+    public static function alphaDepthScoreSort(Section $a, Section $b)
+    {
+        $aNumeric = self::isReferenceNumeric($a->getReference());
+        $bNumeric = self::isReferenceNumeric($b->getReference());
+
+        if ($aNumeric && $bNumeric) {
+            return self::depthScoreSort($a, $b);
+        } elseif ($aNumeric) {
+            return -1;
+        } elseif ($bNumeric) {
+            return 1;
+        } else {
+            return strnatcmp(
+                $a->getReferenceDotDelimited(),
+                $b->getReferenceDotDelimited()
+            );
+        }
     }
 
     /**
@@ -540,7 +642,7 @@ class Section
 
         return $experimentalComment;
     }
-    
+
     /**
      * Returns the part of the KSS Comment Block that contains the compatibility
      * notice
@@ -570,13 +672,13 @@ class Section
     protected function getReferenceComment()
     {
         $referenceComment = null;
+        $commentSections = $this->getCommentSections();
+        $lastLine = end($commentSections);
 
-        foreach ($this->getCommentSections() as $commentSection) {
-            // Identify it by the Styleguide 1.2.3. pattern
-            if (preg_match('/Styleguide \w/i', $commentSection)) {
-                $referenceComment = $commentSection;
-                break;
-            }
+        if (preg_match('/^\s*Styleguide \w/i', $lastLine) ||
+            preg_match('/^\s*No styleguide reference/i', $lastLine)
+        ) {
+            $referenceComment = $lastLine;
         }
 
         return $referenceComment;
@@ -603,6 +705,7 @@ class Section
         return $modifiersComment;
     }
     
+    
     /**
      * Returns the part of the KSS Comment Block that contains the $parameters
      *
@@ -622,4 +725,6 @@ class Section
 
         return $parametersComment;
     }
+    
+    
 }
