@@ -38,14 +38,7 @@ class Section
      * @var string
      */
     protected $markup = null;
-    
-    /**
-     * The parsed javascript comment in the KSS Block
-     *
-     * @var string
-     */
-    protected $javascript = null;
-    
+
     /**
      * The deprecation notice in the KSS Block
      *
@@ -144,7 +137,6 @@ class Section
             if ($commentSection != $this->getReferenceComment()
                 && $commentSection != $this->getTitleComment()
                 && $commentSection != $this->getMarkupComment()
-                && $commentSection != $this->getJavascriptComment()
                 && $commentSection != $this->getDeprecatedComment()
                 && $commentSection != $this->getExperimentalComment()
                 && $commentSection != $this->getCompatibilityComment()
@@ -173,22 +165,6 @@ class Section
 
         return $this->markup;
     }
-    
-    /**
-     * Returns the markup defined in the section
-     *
-     * @return string
-     */
-    public function getJavascript()
-    {
-        if ($this->javascript === null) {
-            if ($javascriptComment = $this->getJavascriptComment()) {
-                $this->javascript = trim(preg_replace('/^\s*Javascript:/i', '', $javascriptComment));
-            }
-        }
-
-        return $this->javascript;
-    }
 
     /**
      * Returns the markup for the normal element (without modifierclass)
@@ -209,16 +185,6 @@ class Section
     public function hasMarkup()
     {
         return $this->getMarkup() !== null;
-    }
-    
-    /**
-     * Returns a boolean value regarding the presence of javascript in the kss-block
-     *
-     * @return boolean
-     */
-    public function hasJavascript()
-    {
-        return $this->getJavascript() !== null;
     }
 
     /**
@@ -262,13 +228,53 @@ class Section
     {
         if ($this->compatibility === null) {
             if ($compatibilityComment = $this->getCompatibilityComment()) {
-                $this->compatibility = trim(preg_replace('/^\s*Compatib(le|ility):/i', '', $compatibilityComment));
+                $this->compatibility = trim($compatibilityComment);
             }
         }
 
         return $this->compatibility;
     }
+    /**
+     * Returns the $parameters used in the section
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        $lastIndent = null;
+        $parameters = array();
 
+        if ($parameterComment = $this->getParametersComment()) {
+            $parameterLines = explode("\n", $parameterComment);
+            foreach ($parameterLines as $line) {
+                if (empty($line)) {
+                    continue;
+                }
+
+                
+                $lineParts = explode(' - ', $line);
+
+                $name = trim(array_shift($lineParts));
+
+                $description = '';
+                
+                if (!empty($lineParts)) {
+                    $description = trim(implode(' - ', $lineParts));
+                }
+                
+                $parameter = new Parameter($name, $description);
+
+                
+                $parameters[] = $parameter;
+                
+            }
+        }
+
+        return $parameters;
+    }
+
+    
+    
     /**
      * Returns the modifiers used in the section
      *
@@ -638,26 +644,6 @@ class Section
 
         return $markupComment;
     }
-    
-    /**
-     * Returns the part of the KSS Comment Block that contains the javascript
-     *
-     * @return string
-     */
-    protected function getJavascriptComment()
-    {
-        $javascriptComment = null;
-
-        foreach ($this->getCommentSections() as $commentSection) {
-            // Identify the javascript comment by the Javascript: marker
-            if (preg_match('/^\s*Javascript:/i', $commentSection)) {
-                $javascriptComment = $commentSection;
-                break;
-            }
-        }
-
-        return $javascriptComment;
-    }
 
     /**
      * Returns the part of the KSS Comment Block that contains the deprecated
@@ -764,7 +750,12 @@ class Section
 
         return $modifiersComment;
     }
+<<<<<<< HEAD:lib/Scan/Kss/Section.php
+    
+    
+=======
 
+>>>>>>> scaninc/master:lib/Section.php
     /**
      * Returns the part of the KSS Comment Block that contains the $parameters
      *
@@ -784,4 +775,9 @@ class Section
 
         return $parametersComment;
     }
+<<<<<<< HEAD:lib/Scan/Kss/Section.php
+    
+    
+=======
+>>>>>>> scaninc/master:lib/Section.php
 }

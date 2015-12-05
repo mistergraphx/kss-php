@@ -40,6 +40,7 @@
 .styleguide__modifier-name {
     font-weight: bold;
 }
+<<<<<<< HEAD
 table.styleguide__parameters {
   width: 100%;
   border-collapse: collapse;
@@ -63,6 +64,16 @@ table.styleguide__parameters th {
     width: 40%;
 }
 .styleguide__parameter-description {
+=======
+.styleguide__parameters {
+    margin: 0 0 0 10px;
+}
+.styleguide__parameters li {
+    list-style-type: none;
+    margin-left: 0;
+}
+.styleguide__parameter-name {
+>>>>>>> scaninc/master
     font-weight: bold;
 }
 .styleguide__element {

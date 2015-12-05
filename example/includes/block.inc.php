@@ -26,6 +26,7 @@
                 <?php } ?>
             </ul>
         <?php } ?>
+<<<<<<< HEAD
     </div>
     
      
@@ -54,20 +55,52 @@
             </tbody>
         </table>            
     <?php } ?>
+=======
+>>>>>>> scaninc/master
 
-    <div class="styleguide__elements">
-        <div class="styleguide__element">
-            <?php echo $section->getMarkupNormal(); ?>
-        </div>
-        <?php foreach ($section->getModifiers() as $modifier) { ?>
-            <div class="styleguide__element styleguide__element--modifier <?php ($modifier->isExtender()) ? 'styleguide__element--extender' : ''; ?>">
-                <span class="styleguide__element__modifier-label <?php echo ($modifier->isExtender()) ? 'styleguide__element__modifier-label--extender' : ''; ?>"><?php echo $modifier->getName(); ?></span>
-                <?php echo $modifier->getExampleHtml(); ?>
-            </div>
+        <?php
+            if (count($section->getParameters()) > 0) {
+        ?>
+            <ul class="styleguide__parameters">
+                <?php foreach ($section->getParameters() as $parameter) { ?>
+                    <li>
+                        <span class="styleguide__parameter-name">
+                            <?php echo $parameter->getName(); ?>
+                        </span>
+                        <?php if ($parameter->getDescription()) { ?>
+                            - <?php echo $parameter->getDescription(); ?>
+                        <?php } ?>
+                    </li>
+                <?php } ?>
+            </ul>
+        <?php } ?>
+
+        <?php
+            if ($section->getCompatibility()) {
+        ?>
+            <p class="styleguide__compatibility"><?php echo nl2br($section->getCompatibility()); ?></p>
         <?php } ?>
     </div>
 
-    <div class="styleguide__html">
-        <pre class="styleguide__code"><code><?php echo htmlentities($section->getMarkupNormal('{class}')); ?></code></pre>
-    </div>
+    <?php
+        if ($section->hasMarkup()) {
+    ?>
+        <div class="styleguide__elements">
+            <div class="styleguide__element">
+                <?php echo $section->getMarkupNormal(); ?>
+            </div>
+            <?php foreach ($section->getModifiers() as $modifier) { ?>
+                <div class="styleguide__element styleguide__element--modifier <?php ($modifier->isExtender()) ? 'styleguide__element--extender' : ''; ?>">
+                    <span class="styleguide__element__modifier-label <?php echo ($modifier->isExtender()) ? 'styleguide__element__modifier-label--extender' : ''; ?>"><?php echo $modifier->getName(); ?></span>
+                    <?php echo $modifier->getExampleHtml(); ?>
+                </div>
+            <?php } ?>
+        </div>
+
+        <div class="styleguide__html">
+            <pre class="styleguide__code"><code><?php echo htmlentities($section->getMarkupNormal('{class}')); ?></code></pre>
+        </div>
+    <?php
+        }
+    ?>
 </div>

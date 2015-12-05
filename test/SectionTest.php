@@ -18,8 +18,11 @@ Your standard form button.
 And another line describing the button.
 
 Markup: <div class="$modifierClass"></div>
+<<<<<<< HEAD
 
 Compatibility:  IE6+, Firefox 2+, Safari 4+.
+=======
+>>>>>>> scaninc/master
 
 Deprecated: Styling for legacy wikis. We'll drop support for these wikis on July 13, 2007.
 
@@ -31,9 +34,13 @@ Experimental: An alternative signup button styling used in AB Test #195.
 .smaller - A smaller button
 .altFormButton @extends .formButton - An extension of .formButton
 
+<<<<<<< HEAD
 $parameter  - {string} (default) Description of the parameter
 @import     - compass/css3/transition
 %myPlacehoder - {placehoder} description fo a placeholder 
+=======
+Compatible in IE6+, Firefox 2+, Safari 4+.
+>>>>>>> scaninc/master
 
 Styleguide 2.1.1.
 comment;
@@ -172,6 +179,9 @@ comment;
         $this->assertEquals($expected, $testSection->getMarkup());
     }
 
+    /**
+     * @test
+     */
     public function getMarkupNull()
     {
         $commentText = <<<comment
@@ -191,22 +201,23 @@ Styleguide 2.1.1.
 comment;
 
         $testSection = new Section($commentText);
-        $this->assertEmpty($testSection->getMarkup());
+        $this->assertNull($testSection->getMarkup());
     }
 
     /**
      * @test
      */
-    public function getCompatibility()
+    public function hasMarkup()
     {
-        $expected = "IE6+, Firefox 2+, Safari 4+.";
-        $this->assertEquals($expected, self::$section->getCompatibility());
+        $this->assertTrue(self::$section->hasMarkup());
     }
 
+<<<<<<< HEAD
+=======
     /**
      * @test
      */
-    public function getCompatibilityMultiline()
+    public function hasMarkupFalse()
     {
         $commentText = <<<comment
 # Form Button
@@ -214,11 +225,6 @@ comment;
 Your standard form button.
 
 And another line describing the button.
-
-Compatibility:
-IE6+,
-Firefox 2+,
-Safari 4+.
 
 :hover - Highlights when hovering.
 :disabled - Dims the button when disabled.
@@ -229,14 +235,76 @@ Safari 4+.
 Styleguide 2.1.1.
 comment;
 
-        $expected = <<<comment
-IE6+,
-Firefox 2+,
-Safari 4+.
+        $testSection = new Section($commentText);
+        $this->assertFalse($testSection->hasMarkup());
+    }
+
+>>>>>>> scaninc/master
+    /**
+     * @test
+     */
+    public function getCompatibility()
+    {
+        $expected = "Compatible in IE6+, Firefox 2+, Safari 4+.";
+        $this->assertEquals($expected, self::$section->getCompatibility());
+    }
+
+    /**
+     * @test
+     */
+<<<<<<< HEAD
+    public function getCompatibilityMultiline()
+=======
+    public function getCompatibilityColon()
+>>>>>>> scaninc/master
+    {
+        $commentText = <<<comment
+# Form Button
+
+Your standard form button.
+
+And another line describing the button.
+
+:hover - Highlights when hovering.
+:disabled - Dims the button when disabled.
+.primary - Indicates button is the primary action.
+.smaller - A smaller button
+.altFormButton @extends .formButton - An extension of .formButton
+
+Compatibility: IE6+, Firefox 2+, Safari 4+.
+
+Styleguide 2.1.1.
 comment;
 
         $testSection = new Section($commentText);
-        $this->assertEquals($expected, $testSection->getCompatibility());
+        $this->assertEquals('Compatibility: IE6+, Firefox 2+, Safari 4+.', $testSection->getCompatibility());
+    }
+
+    /**
+     * @test
+     */
+    public function getCompatibilityUntested()
+    {
+        $commentText = <<<comment
+# Form Button
+
+Your standard form button.
+
+And another line describing the button.
+
+:hover - Highlights when hovering.
+:disabled - Dims the button when disabled.
+.primary - Indicates button is the primary action.
+.smaller - A smaller button
+.altFormButton @extends .formButton - An extension of .formButton
+
+Compatibility untested.
+
+Styleguide 2.1.1.
+comment;
+
+        $testSection = new Section($commentText);
+        $this->assertEquals('Compatibility untested.', $testSection->getCompatibility());
     }
 
     /**
@@ -261,7 +329,7 @@ Styleguide 2.1.1.
 comment;
 
         $testSection = new Section($commentText);
-        $this->assertEmpty($testSection->getCompatibility());
+        $this->assertNull($testSection->getCompatibility());
     }
 
     /**
@@ -462,6 +530,46 @@ comment;
         $this->assertEquals($expected, $description);
     }
     
+
+    /**
+     * @test
+     */
+    public function getParameters()
+    {
+        $commentText = <<<'comment'
+Mixin for parameter
+
+$start - First description of the parameter
+%middle - Second description of the parameter
+@end - Third description of the parameter
+
+Styleguide 2.1.1.
+comment;
+
+        $testSection = new Section($commentText);
+        $this->assertCount(3, $testSection->getParameters());
+    }
+
+    /**
+     * @test
+     */
+    public function getParametersDescriptionContainsDelimiter()
+    {
+        $commentText = <<<'comment'
+Mixin for parameter
+
+$parameter  - Description of the parameter - really fancy
+
+Styleguide 2.1.1.
+comment;
+
+        $testSection = new Section($commentText);
+        $parameters = $testSection->getParameters();
+        $description = $parameters[0]->getDescription();
+        $expected = 'Description of the parameter - really fancy';
+
+        $this->assertEquals($expected, $description);
+    }
 
     /**
      * @test

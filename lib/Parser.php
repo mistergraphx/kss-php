@@ -39,7 +39,7 @@ class Parser
     {
         $finder = new Finder();
         // Only accept css, sass, scss, less, and stylus files.
-        $finder->files()->name('/\.(css|sass|scss|less|js|styl(?:us)?)$/')->in($paths);
+        $finder->files()->name('/\.(css|sass|scss|less|styl(?:us)?)$/')->in($paths);
 
         foreach ($finder as $fileInfo) {
             $file = new \splFileObject($fileInfo);

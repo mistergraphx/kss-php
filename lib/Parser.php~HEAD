@@ -38,8 +38,8 @@ class Parser
     public function __construct($paths)
     {
         $finder = new Finder();
-        // Only accept css, sass, scss, and less files.
-        $finder->files()->name('/\.(css|sass|scss|less)$/')->in($paths);
+        // Only accept css, sass, scss, less, and stylus files.
+        $finder->files()->name('/\.(css|sass|scss|less|js|styl(?:us)?)$/')->in($paths);
 
         foreach ($finder as $fileInfo) {
             $file = new \splFileObject($fileInfo);
@@ -78,10 +78,16 @@ class Parser
     public function getSection($reference)
     {
         $reference = Section::trimReference($reference);
-        if (!array_key_exists($reference, $this->sections)) {
-            throw new UnexpectedValueException('Section with a reference of ' . $reference . ' cannot be found!');
+        $reference = strtolower(Section::normalizeReference($reference));
+
+        foreach ($this->sections as $sectionKey => $section) {
+            $potentialMatch = strtolower(Section::normalizeReference($sectionKey));
+            if ($reference === $potentialMatch) {
+                return $section;
+            }
         }
-        return $this->sections[$reference];
+
+        throw new UnexpectedValueException('Section with a reference of ' . $reference . ' cannot be found!');
     }
 
     /**
@@ -125,6 +131,7 @@ class Parser
      */
     public function getSectionChildren($reference, $levelsDown = null)
     {
+        $reference = strtolower(Section::normalizeReference($reference));
         $this->sortSections();
 
         $sectionKeys = array_keys($this->sections);
@@ -139,9 +146,10 @@ class Parser
         $reference .= '.';
 
         foreach ($sectionKeys as $sectionKey) {
+            $testSectionKey = strtolower(Section::normalizeReference($sectionKey));
             // Only get sections within that level. Do not get the level itself
-            if (strpos($sectionKey . '.', $reference) === 0
-                && $sectionKey . '.' != $reference
+            if (strpos($testSectionKey . '.', $reference) === 0
+                && $testSectionKey . '.' != $reference
             ) {
                 $section = $this->sections[$sectionKey];
                 if ($maxDepth !== null && $section->getDepth() > $maxDepth) {
@@ -165,7 +173,7 @@ class Parser
             return;
         }
 
-        uasort($this->sections, '\Scan\Kss\Section::depthScoreSort');
+        uasort($this->sections, '\Scan\Kss\Section::alphaDepthScoreSort');
         $this->sectionsSortedByReference = true;
     }
 
@@ -191,6 +199,7 @@ class Parser
     {
         $commentLines = explode("\n\n", $comment);
         $lastLine = end($commentLines);
-        return (bool) preg_match('/Styleguide \d/i', $lastLine);
+        return preg_match('/^\s*Styleguide \w/i', $lastLine) ||
+            preg_match('/^\s*No styleguide reference/i', $lastLine);
     }
 }
