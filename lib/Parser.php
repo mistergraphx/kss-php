@@ -35,14 +35,24 @@ class Parser
      * @param string|array $paths A string or array of the paths to scan for KSS
      *                            Comments
      */
-    public function __construct($paths)
+    public function __construct($paths,$files = null)
     {
         $finder = new Finder();
+        
+        if(is_array($files) AND $files != 'all'){
+            foreach($files as $file){
+                $finder->files()->name($file)->in($paths);
+            }    
+        }
         // Only accept css, sass, scss, less, and stylus files.
-        $finder->files()->name('/\.(css|sass|scss|less|styl(?:us)?)$/')->in($paths);
-
+        else{
+            $finder->files()->name('/\.(css|sass|scss|less|styl(?:us)?)$/')->in($paths);
+        }
+        //var_dump($finder);
         foreach ($finder as $fileInfo) {
+                    
             $file = new \splFileObject($fileInfo);
+            
             $commentParser = new CommentParser($file);
             foreach ($commentParser->getBlocks() as $commentBlock) {
                 if (self::isKssBlock($commentBlock)) {

@@ -23,23 +23,6 @@ class Parameter
      * @var string
      */
     protected $description = '';
-<<<<<<< HEAD
-    
-    /**
-     * default value of the parameter
-     *
-     * @var string
-     */
-    protected $default_value = '';
-    
-    /**
-     * type of the parameter
-     *
-     * @var string
-     */
-    protected $type = '';
-=======
->>>>>>> scaninc/master
 
     /**
      * Creates a new parameter by adding a name and a description
@@ -92,9 +75,4 @@ class Parameter
     {
         $this->description = $description;
     }
-<<<<<<< HEAD
-    
-    
-=======
->>>>>>> scaninc/master
 }
