@@ -175,7 +175,7 @@ class Section
     }
 
     /**
-     * Returns the markup defined in the section
+     * Returns the javascript defined in the section
      *
      * @return string
      */
